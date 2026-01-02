@@ -1,4 +1,4 @@
-/**
+ /**
  * 🚀 SERVEUR NODE.JS - MON SALON FIDÈLE
  * 
  * 4 endpoints génériques pour sécuriser Airtable et Make
@@ -7,10 +7,24 @@
 
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+// Configure CORS
+const corsOptions = {
+    origin: [
+        'https://www.monsalonfidele.com',
+        'http://localhost:3000',
+        'http://localhost:8000'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+
 
 // ============================================
 // CONFIG (depuis .env)
