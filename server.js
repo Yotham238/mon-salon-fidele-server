@@ -1,4 +1,5 @@
- /**
+
+/**
  * 🚀 SERVEUR NODE.JS - MON SALON FIDÈLE
  * 
  * 4 endpoints génériques pour sécuriser Airtable et Make
@@ -12,6 +13,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+
 // Configure CORS
 const corsOptions = {
     origin: [
@@ -25,7 +27,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 // ============================================
 // CONFIG (depuis .env)
 // ============================================
@@ -35,23 +36,23 @@ const AIRTABLE_BASE = process.env.AIRTABLE_BASE;
 const PORT = process.env.PORT || 3000;
 
 // ============================================
-// ENDPOINT 1: Query générique (GET avec formule)
+// ENDPOINT 1: Query générique (GET avec filterByFormula)
 // ============================================
 
 /**
  * POST /api/airtable/query
  * 
- * REÇOIT: { table: "Salon", formula: "{Formule salon_id_string}=\"xyz\"" }
- * RETOURNE: { records: [...], offset?: "..." }
+ * REÇOIT: { table: "Salon", filterByFormula: "{Nom Du Salon} = \"xyz\"" }
+ * RETOURNE: { records: [...] }
  */
 
 app.post('/api/airtable/query', async (req, res) => {
   try {
-    const { table, formula } = req.body;
+    const { table, filterByFormula } = req.body;
 
-    if (!table || !formula) {
+    if (!table || !filterByFormula) {
       return res.status(400).json({
-        error: 'Paramètres manquants: table et formula requis'
+        error: 'Paramètres manquants: table et filterByFormula requis'
       });
     }
 
@@ -59,7 +60,7 @@ app.post('/api/airtable/query', async (req, res) => {
     
     const response = await axios.get(url, {
       params: {
-        filterByFormula: formula
+        filterByFormula: filterByFormula
       },
       headers: {
         Authorization: `Bearer ${AIRTABLE_TOKEN}`
@@ -83,7 +84,7 @@ app.post('/api/airtable/query', async (req, res) => {
 /**
  * POST /api/airtable/create
  * 
- * REÇOIT: { table: "clients", fields: { "e-mail": "test@test.com", "prenom": "Jean" } }
+ * REÇOIT: { table: "Salon", fields: { "Nom Du Salon": "Mon Salon" } }
  * RETOURNE: { records: [{ id: "rec123...", fields: {...} }] }
  */
 
@@ -115,7 +116,7 @@ app.post('/api/airtable/create', async (req, res) => {
       }
     );
 
-    res.json(response.data);
+    res.json(response.data.records[0]);
   } catch (error) {
     console.error('Erreur create:', error.message);
     res.status(error.response?.status || 500).json({
@@ -132,8 +133,8 @@ app.post('/api/airtable/create', async (req, res) => {
 /**
  * POST /api/airtable/update
  * 
- * REÇOIT: { table: "clients", recordId: "rec123...", fields: { "prenom": "Jean Updated" } }
- * RETOURNE: { records: [{ id: "rec123...", fields: {...} }] }
+ * REÇOIT: { table: "Salon", recordId: "rec123...", fields: { "Nom Du Salon": "Nouveau Nom" } }
+ * RETOURNE: { id: "rec123...", fields: {...} }
  */
 
 app.post('/api/airtable/update', async (req, res) => {
@@ -160,7 +161,7 @@ app.post('/api/airtable/update', async (req, res) => {
       }
     );
 
-    res.json(response.data);
+    res.json(response.data.records[0]);
   } catch (error) {
     console.error('Erreur update:', error.message);
     res.status(error.response?.status || 500).json({
@@ -213,14 +214,14 @@ app.post('/api/webhook/proxy', async (req, res) => {
 });
 
 // ============================================
-// HEALTH CHECK (optionnel, utile pour Render)
+// HEALTH CHECK
 // ============================================
 
 app.get('/', (req, res) => {
   res.json({
     status: '✅ Serveur Mon Salon Fidèle actif',
     endpoints: [
-      'POST /api/airtable/query',
+      'POST /api/airtable/query (filterByFormula)',
       'POST /api/airtable/create',
       'POST /api/airtable/update',
       'POST /api/webhook/proxy'
@@ -235,11 +236,9 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`\n🚀 Serveur Mon Salon Fidèle lancé sur port ${PORT}`);
   console.log(`✅ Endpoints disponibles:`);
-  console.log(`   - POST /api/airtable/query`);
+  console.log(`   - POST /api/airtable/query (filterByFormula)`);
   console.log(`   - POST /api/airtable/create`);
   console.log(`   - POST /api/airtable/update`);
   console.log(`   - POST /api/webhook/proxy`);
   console.log(`\n📋 Vérifiez le .env pour: AIRTABLE_TOKEN, AIRTABLE_BASE, MAKE_WEBHOOK_*\n`);
 });
-
-module.exports = app;
