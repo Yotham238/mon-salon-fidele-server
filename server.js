@@ -100,7 +100,7 @@ app.post('/api/airtable/create', async (req, res) => {
       });
     }
 
-    const CLIENTS_TABLE = 'Clients';          // nom exact de ta table Clients
+    const CLIENTS_TABLE = 'clients';          // nom exact de ta table Clients
     const SALON_TABLE   = 'Salon';           // nom de la table Salon
     const PLAN_FIELD    = 'plan';            // champ plan dans Salon
     const SALON_CODE_FIELD = 'Formule salon_id_string'; // champ code salon dans Salon
