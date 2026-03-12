@@ -160,12 +160,13 @@ app.post('/api/airtable/create', async (req, res) => {
     const SALON_CODE_FIELD_SALON   = 'Formule salon_id_string'; // côté Salon (formule)
     const CLIENTS_COUNT_FIELD      = 'nb_clients'; // rollup dans Salon
     const FREEMIUM_MAX_CLIENTS     = 30;
+   // Champs possibles pour récupérer le code salon côté client
+   const SALON_CODE_FIELD_CLIENT_1 = 'Formule salon_id_string (à partir de Salon associés)';
+   const SALON_CODE_FIELD_CLIENT_2 = 'Formule salon_id_string';
+   const SALON_CODE_FIELD_CLIENT_3 = 'salon_id_string';        // au cas où tu l’utilises un jour
+   const SALON_CODE_FIELD_CLIENT_4 = 'salon_id';               // idem
+    const SALON_CODE_FIELD_CLIENT_5 = 'salon_id_string_text';   // 👈 ton champ texte existant
 
-    // Champs possibles pour récupérer le code salon côté client
-    const SALON_CODE_FIELD_CLIENT_1 = 'Formule salon_id_string (à partir de Salon associés)';
-    const SALON_CODE_FIELD_CLIENT_2 = 'Formule salon_id_string';
-    const SALON_CODE_FIELD_CLIENT_3 = 'salon_id_string';
-    const SALON_CODE_FIELD_CLIENT_4 = 'salon_id';
 
     // ---------- Limite freemium uniquement pour la table clients ----------
     if (table.toLowerCase() === CLIENTS_TABLE.toLowerCase()) {
@@ -176,7 +177,8 @@ app.post('/api/airtable/create', async (req, res) => {
         fields[SALON_CODE_FIELD_CLIENT_1] ||
         fields[SALON_CODE_FIELD_CLIENT_2] ||
         fields[SALON_CODE_FIELD_CLIENT_3] ||
-        fields[SALON_CODE_FIELD_CLIENT_4];
+        fields[SALON_CODE_FIELD_CLIENT_4] ||
+        fields[SALON_CODE_FIELD_CLIENT_5];
 
       logInfo(scope, 'Salon code extracted from fields', { salonCode });
 
